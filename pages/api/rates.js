@@ -14,7 +14,7 @@ export default function handler(req, res) {
 
   // POST — Cowork sends rate data here
   if (req.method === 'POST') {
-    const { results, checkin, checkout, guests, notes } = req.body;
+    const { results, checkin, checkout, guests, client_annual_spend, notes } = req.body;
 
     if (!results || !Array.isArray(results)) {
       return res.status(400).json({ error: 'Missing or invalid results array' });
@@ -26,8 +26,21 @@ export default function handler(req, res) {
       checkin: checkin || null,
       checkout: checkout || null,
       guests: guests || null,
-      notes: notes || null,
-      results, // array of { site, property, price, currency, available, url }
+      client_annual_spend: client_annual_spend || null, // optional: passed from Cowork task
+      notes: notes || null, // top-level summary note (optional)
+      results,
+      // Each result object supports:
+      // {
+      //   site: string,           e.g. "RCI" or "Booking.com"
+      //   property: string,
+      //   payment_type: string,   "points" | "cash" | "both"
+      //   points_cost: number,    RCI points required (if payment_type is "points" or "both")
+      //   price: number,          cash cost (if payment_type is "cash" or "both")
+      //   currency: string,       e.g. "USD"
+      //   available: boolean,
+      //   url: string,
+      //   notes: string,          per-card notes shown inline on the card
+      // }
     };
 
     // Keep the 20 most recent fetches
